@@ -22,6 +22,8 @@ render() {
                     <h5>Don't have an account? 
                         <Link to="/signup"> Signup here</Link>
                     </h5>
+
+                    <a href="/signup">signup here (anchor tag)..</a>
                 </div>
             </div>
 

@@ -25,6 +25,7 @@ def homepage():
     return render_template("homepage.html")
 
 @app.route('/signup')
+@app.route('/login')
 def signup():
     """View SignUp"""
     print("In signup")

@@ -19,7 +19,7 @@ class App extends React.Component {
     this.state = {
       errorMessage: "",
       parentId: sessionStorage.getItem('parentId'), 
-      // path: '/'
+      path: '/'
     };
     this.setParentDetails = this.setParentDetails.bind(this);
     this.handleChange = this.handleChange.bind(this)
@@ -46,37 +46,20 @@ class App extends React.Component {
       <div>
         <Router>
           <Switch>
-              <Route>
-                { (this.state.parentId) ?
-                  <ParentInfo path="/api/parent/" /> :
-                  <Login path="/" />
-                } 
+            <Route path="/api/parent/:{parentId}"><ParentInfo /></Route> 
+            <Route path="/signup"><SignUp setParentDetails={this.setParentDetails} /></Route>
+            <Route path='/'>
+              {(this.state.parentId) ?
+                <Redirect to='/api/parent/:{parentId}' /> :
+                <Login />
+              }
               </Route>
-              <Route path="/signup">
-                 <SignUp />
-              </Route>
+
           </Switch>
       </Router>
-    </div>
+      </div>
     )
   }
-
 }
 
 ReactDOM.render(<App />, document.querySelector('#app'));
-
-
-// ReactDOM.render(<Router History={hashHistory}>
-//   <Switch>
-//           <Route exact path="/" component={App} />
-          
-//           <Route path="/signup" component={SignUp} />
-
-//   </Switch>
-// </Router>, document.getElementById('app'));
-
-
-// Verify if depricated before delteing
-// <Route path="/api/parent/:id" component={SignUp} />
-// <Route path="/api/parent/add" component={SignUp} />
-// <Route path="/api/parent/" component={SignUp} />

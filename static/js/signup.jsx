@@ -138,7 +138,7 @@ class SignUp extends React.Component {
   render() {
     return(
         <div>
-            (this.state.isLoading) ? 
+            {(this.state.isLoading) ? 
             <div>Loading..</div> :  
             <div>
                 <h5>Signup to start booking rides</h5>
@@ -255,6 +255,7 @@ class SignUp extends React.Component {
                     <button>Sign Up</button>
                 </form>
             </div>
+            }
         </div>
         );
     }
