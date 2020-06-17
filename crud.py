@@ -14,13 +14,18 @@ if __name__ == '__main__':
 
 def get_parent_by_id(id):
     """ Return the record for parent by id """
-    print("In get parent by id")
+    print("In get parent by id in CRUD.py")
     return db.session.query(Parent).filter(Parent.id == id).first() 
 
 def get_parent_by_email(email):
     """ Return the record for parent by email """
-    print("In get parent by email")
+    print("In get parent by email in CRUD.py")
     return db.session.query(Parent).filter(Parent.email == email).first() 
+
+def get_children_by_parent_id(parent_id):
+    """ Return the record for child by parent id """
+    print("In get children by parent id in CRUD.py")
+    return db.session.query(Child).filter(Child.parent_id == parent_id).first() 
 
 def get_all(table):
     """ Return a list of all records from table specified (Parent, School, Child, 
@@ -35,7 +40,7 @@ def create_parent(parent_fname, parent_lname,
                 created_on, password):
 
     """Create and return a new PARENT """
-    print("In crud.py", parent_fname, parent_lname,
+    print("In crud.py - create parent ", parent_fname, parent_lname,
         email, phone, address1, address2, 
         city, state, zipcode, last_login, created_on, password)
 
@@ -58,6 +63,25 @@ def create_parent(parent_fname, parent_lname,
 
     return parent
 
+#Create child method
+def create_child(child_fname, child_lname, grade, school_id,
+                parent_id):
+
+    """Create and return a new CHILD """
+    print("In crud.py - create child ", child_fname, child_lname,
+        grade, school_id, parent_id)
+
+    child = Child(child_fname = child_fname, 
+                    child_lname = child_lname, 
+                    grade = grade, 
+                    school_id = school_id,
+                    parent_id = parent_id
+                    )
+
+    db.session.add(child)
+    db.session.commit()
+
+    return child
 
 #Create school method
 def create_school(school_name, office_email, office_phone, 

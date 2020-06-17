@@ -10,7 +10,8 @@ const IndexRoute = window.ReactRouter.BrowserRouter;
 const hashHistory = window.ReactRouter.BrowserRouter;
 const useLocation = window.ReactRouterDOM.useLocation;
 const useRouteMatch = window.ReactRouterDOM.useRouteMatch;
-
+const browserHistory = window.ReactRouter;
+const useParams = window.ReactRouterDOM.useParams;
 
 class App extends React.Component {
 
@@ -18,21 +19,32 @@ class App extends React.Component {
     super(props);
     this.state = {
       errorMessage: "",
+      id: "", // Initial state of user id passed down from App to Login/Signup/Parent classes
       parentId: sessionStorage.getItem('parentId'), 
+      email: "",
       path: '/'
     };
+
     this.setParentDetails = this.setParentDetails.bind(this);
+    this.getParentDetails = this.getParentDetails.bind(this);
     this.handleChange = this.handleChange.bind(this)
   }
 
   setParentDetails(data) {
     let parentId, email;
     [parentId, email] = data;
+    console.log(`In setParentDetails - ${parentId} - ${email} `)
     sessionStorage.setItem('parentId', parentId);
     sessionStorage.setItem('email', email);
     this.setState({ parentId: parentId,
                     email: email 
                   });
+  }
+
+  getParentDetails(){
+    const pathname = window.location.pathname;
+    const parentId = pathname.substring(pathname.lastIndexOf('/')+1);
+    return parentId; 
   }
 
 
@@ -44,17 +56,16 @@ class App extends React.Component {
   render() {
     return (  
       <div>
-        <Router>
+        <Router history={browserHistory}>
           <Switch>
-            <Route path="/api/parent/:{parentId}"><ParentInfo /></Route> 
-            <Route path="/signup"><SignUp setParentDetails={this.setParentDetails} /></Route>
+            <Route path='/parent/:id'><ParentInfo getParentDetails={this.getParentDetails} /></Route> 
+            <Route path='/signup'><SignUp setParentDetails={this.setParentDetails} /></Route>
             <Route path='/'>
               {(this.state.parentId) ?
-                <Redirect to='/api/parent/:{parentId}' /> :
-                <Login />
+                <Redirect to={`/parent/${this.state.parentId}`} /> :
+                <Login setParentDetails={this.setParentDetails} />
               }
               </Route>
-
           </Switch>
       </Router>
       </div>

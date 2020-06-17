@@ -1,6 +1,5 @@
 {% extends 'base.html' %} {% block title %} Welcome to S'Cool Carpool! {% endblock %} {% block js %}
 <script src="/static/js/signup.jsx" type="text/jsx"></script>
-<script src="/static/js/manageaccount.jsx" type="text/jsx"></script>
 <script src="/static/js/parentinfo.jsx" type="text/jsx"></script>
 <script src="/static/js/login.jsx" type="text/jsx"></script>
 <script src="/static/js/app.jsx" type="text/jsx"></script>
@@ -8,17 +7,16 @@
 {% endblock %} {% block body %}
 
 
-<!-- Mount react components on to this element. -->
 <div id="logoheader" class="row">
     <div class="col-2">
         <img src="/static/img/Logo.png" width="200px" height="175px" />
     </div>
-
-    <div col="col-7">
+    <div class="col-7, ml-3, pt-5">
         <h3> Welcome to S'Cool Carpool!</h3>
         <h4> A safe and hassle-free neighborhood carpool for your kids </h4>
     </div>
 </div>
+
 
 <!-- Mount react components on to this element. -->
 <div id="app"></div>

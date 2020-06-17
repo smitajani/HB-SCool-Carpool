@@ -68,18 +68,17 @@ def create_parent():
                                     created_on,
                                     password)
         return jsonify([result.id, email])
-        
-
 
     except:
-        result = "Error inserting user"
+        result = "Error inserting parent"
         return result
     
 
 @app.route('/api/parent/id=<id>')
 def get_parent_by_id(id):
     parent_info = crud.get_parent_by_id(id)
-    print("*** In server.py get_parent_by_id", parent_info.id, parent_info.parent_fname)
+    print("*** In server.py get_parent_by_id, ", parent_info.id, \
+    parent_info.parent_fname)
     return jsonify({"id" : parent_info.id, 
                     "parentFname" : parent_info.parent_fname,
                     "parentLname": parent_info.parent_lname,
@@ -87,15 +86,17 @@ def get_parent_by_id(id):
                     "phone" : parent_info.phone,
                     "address1" : parent_info.address1,
                     "address2" : parent_info.address2,
+                    "resState": parent_info.state,
                     "city" : parent_info.city,
-                    "resState" : parent_info.state,
-                    "zipcode" : parent_info.zipcode})
+                    "zipcode" : parent_info.zipcode,
+                    "last_login" : parent_info.last_login})
 
 
 @app.route('/api/parent/email=<email>')
 def get_parent_by_email(email):
     parent_info = crud.get_parent_by_email(email)
-    print("*** In server.py get_parent_by_email", parent_info.id, parent_info.parent_fname)
+    print(f'*** In server.py get_parent_by_email, {parent_info.id}, \
+    {parent_info.parent_fname}')
     return jsonify({"id" : parent_info.id, 
                     "parentFname" : parent_info.parent_fname,
                     "parentLname": parent_info.parent_lname,
@@ -107,7 +108,55 @@ def get_parent_by_email(email):
                     "resState" : parent_info.state,
                     "zipcode" : parent_info.zipcode})
 
+@app.route('/api/child/parent=<parent_id>')
+def get_children_by_parent_id(parent_id):
+    print("*** In server.py get_children_by_parent_id, ", parent_id)
+    children_info = crud.get_children_by_parent_id(parent_id)
+    if (children_info != None):
+        print(f'*** In server.py get_children_by_parent_id, {children_info.id}, \
+        {children_info.child_fname}')
+        return jsonify({"id" : children_info.id, 
+                    "childFname" : children_info.child_fname,
+                    "childLname": children_info.child_lname,
+                    "grade" : children_info.grade,
+                    "schoolId" : children_info.school_id,
+                    "parentId" : children_info.parent_id
+                    })
+    else:
+        return jsonify({"id" : "", 
+                    "childFname" : "",
+                    "childLname": "",
+                    "grade" : "",
+                    "schoolId" : "",
+                    "parentId" : ""
+                    })
 
+@app.route('/api/child/add', methods=['POST'])
+def create_child():
+    print("In server.py create childfunction")
+    
+    query_str_data = request.get_json()
+ 
+    print("In server.py - create child ", query_str_data)
+
+    child_fname = query_str_data['childFname'],
+    child_lname = query_str_data['childLname'],
+    grade = query_str_data['grade'],
+    school_id = query_str_data['schoolId'],
+    parent_id = query_str_data['parentId'], 
+
+    try:
+        result = crud.create_child(child_fname, 
+                                    child_lname, 
+                                    grade, 
+                                    school_id,
+                                    parent_id)
+        return jsonify([result.id, child_fname])
+
+    except:
+        result = "Error inserting child"
+        return result
+    
 
 # @app.route('/', defaults={'path':''})
 # @app.route('/<path:path>')
