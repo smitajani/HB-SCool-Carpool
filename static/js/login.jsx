@@ -10,10 +10,15 @@ class Login extends React.Component {
     this.state = {
         isLoading: true,
         errorMessage: "",
-
+        
         email: this.props.email,
+        emailFromApp: this.props.emailFromApp,
+        idFromApp: this.props.idFromApp,
+        parentIdFromApp: this.props.parentIdFromApp,
         id: "",
     };
+    //console.log(`In constructor of login app - ${emailFromApp}}, ${idFromApp}, ${parentIdFromApp}`);
+    console.log(`In constructor of login app 2. - ${props.emailFromApp}, ${props.idFromApp}, ${props.parentIdFromApp}`);
     
     // Required binding to make `this` work in the callback
     this.handleChange = this.handleChange.bind(this);
@@ -88,12 +93,12 @@ class Login extends React.Component {
   }
 
   render() { 
-        console.log("In render routine...");
+        console.log("In render routine...", this.props.emailFromApp, this.props.idFromApp, this.props.parentIdFromApp);
         const id = this.state.id;
         console.log(`*****In render - id is ${id}`);
 
         if (id != "") { 
-          console.log("In render routine - redirecting user to parent...");
+            console.log("In render routine - redirecting user to parent...");
             return(
                 <Redirect to={`/parent/${this.state.id}`} />
             )

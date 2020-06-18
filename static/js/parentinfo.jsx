@@ -3,6 +3,7 @@
 class ParentInfo extends React.Component {
     constructor(props) {
         super(props);
+        console.log("In ParentInfo Constructor " + props.emailFromApp + "-" + props.idFromApp + "-" + props.parentIdFromApp)
 
         //Initial state of component
         this.state = {
@@ -19,13 +20,19 @@ class ParentInfo extends React.Component {
             resState: "",
             phone: "",
             zipcode: "",
-            last_login: ""
-            ,
+            last_login: "",
             childFname: "",
             childLname: "",
             grade: "",
-            schoolId: ""
+            schoolId: "",
+            emailFromApp: "",
+            idFromApp: "",
+            parentIdFromApp: ""
         };
+
+        console.log("In ParentInfo Constructor after state " + this.props.emailFromApp + "-" + props.idFromApp + "-" + props.parentIdFromApp)
+
+        
         console.log("In parentInfo parentId : " + this.state.parentId)
         console.log("In parentInfo getParentDetails : " + this.props.getParentDetails())
 
@@ -35,6 +42,7 @@ class ParentInfo extends React.Component {
         }
     
     async componentDidMount() {
+        console.log("In ParentInfo componentDidMount " + this.props.emailFromApp + "-" + this.props.idFromApp + "-" + this.props.parentIdFromApp)
 
         //Get Parent Information from the database
             const response = await fetch(`/api/parent/id=${this.state.parentId}`);
@@ -146,75 +154,114 @@ class ParentInfo extends React.Component {
 
         return (
             <div id="container">
-                 <div id="showerror" class="row">
+                <div id="showerror" class="row">
                     <div class="col">
                           {/* <textarea name="errorMessage" value={this.state.value} onChange={this.handleChange} /> */}
                     </div>
                 </div>
-                <div class={"row", "ml-3"}>
-                    <div class="col">
-                    <h5>Parent Details</h5>
-                        <p>Parent Name: {this.state.parentFname} {this.state.parentLname}</p>
-                        <p>Address: {this.state.address1}<br />{this.state.address2}</p>
-                        <p>{this.state.city}, {this.state.resState} - {this.state.zipcode}</p>
-                        <p>Phone: {this.state.phone}</p>
-                    </div>
-                </div>    
-                <div class={"row", "ml-3"}>
-                    <div class="col">
-                        <h5>Please enter your children information</h5>
-                        <form onSubmit={this.handleSubmit}>                    
-                            <label>
-                                Child - First Name: 
-                                <input 
-                                    name="childFname" 
-                                    type="text" 
-                                    placeholder = "First Name"
-                                    value={this.state.childFname}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-
-                            <label>
-                                Last Name: 
-                                    <input 
-                                    name="childLname" 
-                                    type="text" 
-                                    placeholder = "Last Name"
-                                    value={this.state.childLname}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-
-                            <label>
-                                Grade: 
-                                <input 
-                                    name="grade" 
-                                    type="text" 
-                                    placeholder = "Grade"
-                                    value = {this.state.grade}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-
-                            <label>
-                                School: 
-                                <input 
-                                    name="schoolId" 
-                                    type="text" 
-                                    placeholder = "School"
-                                    value = {this.state.schoolId}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-
-                            <br />
-                            <button>Submit</button>
-                        </form>
+                <div class="row ml-3">
+                    {/* <div class="col-9 text-dark border-left border-info border-right border-info border-top border-info"> */}
+                    <div class="col-9">
+                        <h5>Parent Details</h5>
                     </div>
                 </div>
+                <div class="row ml-3">
+                    {/* <div class="col-5 text-secondary border-bottom border-info border-left border-info"> */}
+                    <div class="col-5">
+                        <p>Parent Name: {this.state.parentFname} {this.state.parentLname}</p>
+                        <p>Phone: {this.state.phone}</p>
+                        <p>Email: {this.state.email}</p>
+                    </div>
+                    {/* <div class="col-4 text-secondary border-bottom border-info border-right border-info"> */}
+                    <div class="col-4">
+                        <p>Address: {this.state.address1},</p>
+                        <p>{this.state.address2}</p>
+                        <p>{this.state.city}, {this.state.resState} - {this.state.zipcode}</p>
+                    </div>
+                </div>
+                <div>
+                    <br /><br />
+                </div>
+                <div class="row ml-3">
+                    <div class="col-9 text-dark">
+                        <h5>Please enter children details:</h5>
+                    </div>
+                </div>
+                <form onSubmit={this.handleSubmit}> 
+                    {/* <div class="row ml-3">
+                        <div class="col=2 ml=5 pading=5 text-secondary d-table-cell">          
+                            <label>First Name........</label>
+                        </div>          
+                        <div class="col=2 text-secondary d-table-cell">
+                            <label>Last Name.......</label>
+                        </div>
+
+                        <div class="col=2 text-secondary">          
+                            <label>Grade.....</label>
+                        </div>          
+
+                        <div class="col=2 text-secondary">          
+                            <label>School....</label>
+                        </div>
+                    </div>        */}
+
+                    <div class="row ml-3">
+                        
+                        <label> First name:       
+                            <input 
+                                name="childFname" 
+                                type="text" 
+                                placeholder = "First Name"
+                                value={this.state.childFname}
+                                onChange={this.handleChange} />
+                        </label>          
+                        <br />
+                        <label> Last name:
+                            <input 
+                                name="childLname" 
+                                type="text" 
+                                placeholder = "Last Name"
+                                value={this.state.childLname}
+                                onChange={this.handleChange} />
+                        </label>          
+                        <br />
+                        <label> Grade:    
+                        <select name="grade" onChange={this.handleChange}>
+                            <option value="TK">TK</option>
+                            <option value="Kinder">Kinder</option>
+                            <option value="G1">G1</option>
+                            <option value="G2">G2</option>
+                            <option value="G3">G3</option>
+                            <option value="G4">G4</option>
+                            <option value="G5">G5</option>
+                            <option value="G6">G6</option>
+                            <option value="G7">G7</option>
+                            <option value="G8">G8</option>
+                        </select>  
+                            {/* <input 
+                                name="grade" 
+                                type="text" 
+                                placeholder = "Grade"
+                                value = {this.state.grade}
+                                onChange={this.handleChange} /> */}
+                        </label>          
+                        <br />
+                        <label>School:       
+                            <input 
+                                name="schoolId" 
+                                type="text" 
+                                placeholder = "School"
+                                value = {this.state.schoolId}
+                                onChange={this.handleChange} />
+                        </label>         
+                        <br />
+                        <label>
+                            <button>Submit</button>
+                        </label>
+                    </div>                    
+                </form>
+                <label hidden><Link to="/volunteer">Volunteer as driver</Link></label>
             </div>
         );
     }
-
 }  

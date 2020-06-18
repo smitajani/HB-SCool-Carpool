@@ -57,12 +57,21 @@ class SignUp extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
         this.validateParent();
+        console.log(this.state.email)
+      
+        //Check if the record exists
+        const data = this.userExists();
+        console.log(`..And my data is: ${data}`);
   
-        const ErrMsg = this.state.errorMessage
-        if (ErrMsg !== "") {
-            alert(this.state.errorMessage);
-            this.setState({errorMessage: ""});
-        } else {
+        const { errorMessage, email, id } = this.state;
+        console.log(`errorMessage is ${errorMessage}`)
+        console.log(`email is ${email}`)
+        console.log(`id (id) is ${id}`)
+
+        if (errorMessage !== "") {
+          alert(errorMessage);
+          this.setState({errorMessage: ""});
+      } else {
                 const { parentFname, parentLname, 
                     email, phone, address1, address2, 
                     city, resState, zipcode, password  } = this.state;
@@ -87,6 +96,46 @@ class SignUp extends React.Component {
       }
 
 
+  async userExists() {
+
+    console.log("In userExists routine...");
+
+    const email = this.state.email;
+    console.log(email)
+
+    const fetch_URL = (`/api/parent/email=${email}`);
+    console.log(`Fetch URL: ${fetch_URL}`);
+
+    let res = await fetch(fetch_URL);
+      
+    if (res.ok) {
+      let data = await res.json(); 
+      if ((data != "[object Promise]") && (data != "")) {
+          alert("You have an existing account, please login using your email/password")
+          console.log("Existing account");
+          console.log(data);
+          this.setState({errorMessage: "Existing account"});
+          this.props.setParentDetails([data.email])
+          return; 
+      } 
+      else if (data == "[object Promise]") {
+        this.setState({errorMessage: "Loading.."});
+        alert("Verifying..");
+        return; 
+      } else {
+        console.log("User does not exist. New user, ok to signup!");
+        this.setState({errorMessage: ""});
+        return;
+      }
+    } else {
+      alert("HTTP-Error: " + res.status);
+      this.setState({errorMessage: "Hmm! Something is not right - It's not you, it's us!"});
+      return;
+    }
+      
+  }
+
+
     //ComponentDidMount: This function indicates that it 
     //has been mounted at least once and is ready to 
     //render data if 'fetch' has successfully 
@@ -97,37 +146,44 @@ class SignUp extends React.Component {
     //task to complete, before it executes - as a result, 
     // forcing them to be synchronous. 
 
-    // async componentDidMount() {
+    async componentDidMount() {
+        console.log("In componentDidMount routine of SignUp.. 1");
 
-    //     let queryParam = "";
-    //     if ((this.state.id != "") || (this.state.email != "")) {
-    //         if (this.state.id != "") {
-    //             queryParam = `id=${this.state.id}`;            
-            
-    //         } else {
-    //             queryParam = `email=${this.state.email}`;
-    //         }
+        let queryParam = "";
+        if ((this.state.id != "") || (this.state.email != "")) {
+            console.log("In componentDidMount routine of SignUp.. 1.1");
+            if (this.state.id != "") {
+                console.log("In componentDidMount routine of SignUp.. 1.1.1");
+                queryParam = `id=${this.state.id}`;            
+                console.log("In componentDidMount routine of SignUp.. 1.1.1.1", queryParam);
+            } else {
+                console.log("In componentDidMount routine of SignUp.. 1.1.2");
+                queryParam = `email=${this.state.email}`;
+                console.log("In componentDidMount routine of SignUp.. 1.1.2.1", queryParam);
+            }
+            console.log("In componentDidMount routine of SignUp.. 2", queryParam);
+            const response = await fetch(`/api/parent/${queryParam}`);
+            const userData = await response.json();
         
-    //         const response = await fetch(`/api/parent/${queryParam}`);
-    //         const userData = await response.json();
-        
-    //         this.setState({
-    //             isLoading: false,
-    //             id: userData.id,
-    //             parentFname: userData.parentFname,
-    //             parentLname: userData.parentLname,
-    //             address1: userData.address1,
-    //             address2: userData.address2,
-    //             city: userData.city,
-    //             resState: userData.resState,
-    //             email: userData.email,
-    //             zipcode: userData.zipcode
-    //           });
-
-    //     } else {
-    //         this.setState({isLoading: false})
-    //     } 
-    // }
+            console.log("In componentDidMount routine of SignUp.. 3");
+            this.setState({
+                isLoading: false,
+                id: userData.id,
+                parentFname: userData.parentFname,
+                parentLname: userData.parentLname,
+                address1: userData.address1,
+                address2: userData.address2,
+                city: userData.city,
+                resState: userData.resState,
+                email: userData.email,
+                zipcode: userData.zipcode
+              });
+              console.log("In componentDidMount routine of SignUp.. 4");
+        } else {
+            console.log("In componentDidMount routine of SignUp.. 1.2");
+            this.setState({isLoading: false})
+        } 
+    }
   
   render() {
         console.log("In render routine of SignUp - assign constant \
@@ -137,15 +193,14 @@ class SignUp extends React.Component {
         //console.log("In render routine of SignUp - assigned email...");
         
         const id = this.state.id;
-        //console.log("In render routine of SignUp - assigned id...");
+        console.log("In render routine of SignUp - assigned id...", id);
         
-        alert(`My email is: ${email}  `);
-        // if (id != "") { 
-        //     console.log("In render routine of SignUp - redirecting user to parent...");
-        //     return(
-        //         <Redirect to={`/parent/${email}`} />
-        //     )
-        // }
+        if (id != "") { 
+            console.log("In render routine of SignUp - redirecting user to parent...");
+            return(
+                <Redirect to={`/parent/${email}`} />
+            )
+        }
         
         // else {
             return(
@@ -213,11 +268,16 @@ class SignUp extends React.Component {
                             
                             <label>
                                 State: 
-                                <input 
+                                <select name="resState" onChange={this.handleChange}>
+                                    <option value="CA">CA</option>
+                                    <option value="CA">MA</option>                                
+                                    <option value="CA">NY</option>
+                                </select>
+                                {/* <input 
                                     name="resState" 
-                                    type="text" 
+                                    type="text"
                                     value = {this.state.resState}
-                                    onChange={this.handleChange} />
+                                    onChange={this.handleChange} /> */}
                             </label>
                             <br />
 

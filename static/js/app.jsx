@@ -54,16 +54,17 @@ class App extends React.Component {
    }
 
   render() {
+    console.log("In App 'render' routine..", this.state.email, "--", this.state.id, "--", this.state.parentId);
     return (  
       <div>
         <Router history={browserHistory}>
           <Switch>
-            <Route path='/parent/:id'><ParentInfo getParentDetails={this.getParentDetails} /></Route> 
-            <Route path='/signup'><SignUp setParentDetails={this.setParentDetails} /></Route>
+            <Route path='/parent/:id'><ParentInfo getParentDetails={this.getParentDetails}  emailFromApp={this.state.email} idFromApp={this.state.id} parentIdFromApp={this.state.parentId} /></Route> 
+            <Route path='/signup'><SignUp setParentDetails={this.setParentDetails}/></Route>
             <Route path='/'>
               {(this.state.parentId) ?
                 <Redirect to={`/parent/${this.state.parentId}`} /> :
-                <Login setParentDetails={this.setParentDetails} />
+                <Login setParentDetails={this.setParentDetails} emailFromApp={this.state.email} idFromApp={this.state.id} parentIdFromApp={this.state.parentId} />
               }
               </Route>
           </Switch>
