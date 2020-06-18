@@ -2,7 +2,7 @@
 class SignUp extends React.Component {
   
     constructor(props) {
-    console.log("Signup constructor")
+    console.log("Signup - In constructor")
     super(props);
     
     //Initial state of component
@@ -10,14 +10,14 @@ class SignUp extends React.Component {
         isLoading: false,
         errorMessage: "",
 
-        id: "",
+        parentId: this.props.parentId,
+        email: this.props.email,
         parentFname: "",
         parentLname: "",
         address1: "",
         address2: "",
         city: "",
         resState: "",
-        email: "",
         phone: "",
         zipcode: "",
         password: ""
@@ -35,11 +35,10 @@ class SignUp extends React.Component {
         this.setState({ [event.target.name] : event.target.value})
      }
 
+
     //Post MVP: Get the message display working and expand on field validations
     validateParent() {
-        
         if (this.state.parentFname.length < 2) {
-
             this.state.errorMessage = "Please enter a valid first name!"
                 //Render the error message in the Error-Message tag
                 return (this.state.errorMessage)
@@ -57,21 +56,22 @@ class SignUp extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
         this.validateParent();
-        console.log(this.state.email)
+        console.log(`Signup - In handleSubmit: ${this.state.email}`)
       
         //Check if the record exists
         const data = this.userExists();
-        console.log(`..And my data is: ${data}`);
+        console.log(`Signup - And my data is: ${data}`);
   
-        const { errorMessage, email, id } = this.state;
-        console.log(`errorMessage is ${errorMessage}`)
-        console.log(`email is ${email}`)
-        console.log(`id (id) is ${id}`)
+        const { errorMessage, email, parentId } = this.state;
+        console.log(`Signup - errorMessage is ${errorMessage}`)
+        console.log(`Signup - email is ${email}`)
+        console.log(`Signup - parentId is ${parentId}`)
 
         if (errorMessage !== "") {
           alert(errorMessage);
           this.setState({errorMessage: ""});
       } else {
+        console.log(`Signup - Going to insert record in Parent table..`) 
                 const { parentFname, parentLname, 
                     email, phone, address1, address2, 
                     city, resState, zipcode, password  } = this.state;
@@ -88,7 +88,7 @@ class SignUp extends React.Component {
                   .then(res => res.json())
                   .then(data => {
                       alert("Congratulations! you have signed-up successfully")
-                      console.log(email)
+                      console.log(`Signup - email: ${email}`)
                       this.setState({id: data.id})
                       this.props.setParentDetails(data)
                   });
@@ -98,13 +98,13 @@ class SignUp extends React.Component {
 
   async userExists() {
 
-    console.log("In userExists routine...");
+    console.log("Signup - In userExists routine...");
 
     const email = this.state.email;
-    console.log(email)
+    console.log(`Signup - email: ${email}`)
 
     const fetch_URL = (`/api/parent/email=${email}`);
-    console.log(`Fetch URL: ${fetch_URL}`);
+    console.log(`Signup - Fetch URL: ${fetch_URL}`);
 
     let res = await fetch(fetch_URL);
       
@@ -112,8 +112,8 @@ class SignUp extends React.Component {
       let data = await res.json(); 
       if ((data != "[object Promise]") && (data != "")) {
           alert("You have an existing account, please login using your email/password")
-          console.log("Existing account");
-          console.log(data);
+          console.log("Signup - Existing account");
+          console.log(`Signup - data: ${data}`)
           this.setState({errorMessage: "Existing account"});
           this.props.setParentDetails([data.email])
           return; 
@@ -123,7 +123,7 @@ class SignUp extends React.Component {
         alert("Verifying..");
         return; 
       } else {
-        console.log("User does not exist. New user, ok to signup!");
+        console.log("Signup - User does not exist. New user, ok to signup!");
         this.setState({errorMessage: ""});
         return;
       }
@@ -147,28 +147,28 @@ class SignUp extends React.Component {
     // forcing them to be synchronous. 
 
     async componentDidMount() {
-        console.log("In componentDidMount routine of SignUp.. 1");
+        console.log("Signup - In componentDidMount routine.. 1");
 
         let queryParam = "";
-        if ((this.state.id != "") || (this.state.email != "")) {
-            console.log("In componentDidMount routine of SignUp.. 1.1");
-            if (this.state.id != "") {
-                console.log("In componentDidMount routine of SignUp.. 1.1.1");
-                queryParam = `id=${this.state.id}`;            
-                console.log("In componentDidMount routine of SignUp.. 1.1.1.1", queryParam);
+        if ((this.state.parentId != null) || (this.state.email != "")) {
+            console.log("Signup - In componentDidMount routine.. 1.1");
+            if (this.state.parentId != null) {
+                console.log("Signup - In componentDidMount routine.. 1.1.1");
+                queryParam = `id=${this.state.parentId}`;            
+                console.log("In componentDidMount routine.. 1.1.1.1", queryParam);
             } else {
-                console.log("In componentDidMount routine of SignUp.. 1.1.2");
+                console.log("Signup - In componentDidMount routine.. 1.1.2");
                 queryParam = `email=${this.state.email}`;
-                console.log("In componentDidMount routine of SignUp.. 1.1.2.1", queryParam);
+                console.log("Signup - In componentDidMount routine.. 1.1.2.1", queryParam);
             }
-            console.log("In componentDidMount routine of SignUp.. 2", queryParam);
+            console.log("Signup - In componentDidMount routine.. 2", queryParam);
             const response = await fetch(`/api/parent/${queryParam}`);
             const userData = await response.json();
         
-            console.log("In componentDidMount routine of SignUp.. 3");
+            console.log("Signup - In componentDidMount routine.. 3");
             this.setState({
                 isLoading: false,
-                id: userData.id,
+                parentId: userData.id,
                 parentFname: userData.parentFname,
                 parentLname: userData.parentLname,
                 address1: userData.address1,
@@ -178,25 +178,23 @@ class SignUp extends React.Component {
                 email: userData.email,
                 zipcode: userData.zipcode
               });
-              console.log("In componentDidMount routine of SignUp.. 4");
+              console.log("Signup - In componentDidMount routine.. 4");
         } else {
-            console.log("In componentDidMount routine of SignUp.. 1.2");
+            console.log("Signup - In componentDidMount routine.. 1.2");
             this.setState({isLoading: false})
         } 
     }
   
   render() {
-        console.log("In render routine of SignUp - assign constant \
-        [email, id] from state...");
+        console.log("Signup - In render routine - assign constant \
+        [email, parentId] from state...");
 
         const email = this.state.email;
-        //console.log("In render routine of SignUp - assigned email...");
+        const parentId = this.state.parentId;
+        console.log("Signup -In render routine - assigned id...", parentId);
         
-        const id = this.state.id;
-        console.log("In render routine of SignUp - assigned id...", id);
-        
-        if (id != "") { 
-            console.log("In render routine of SignUp - redirecting user to parent...");
+        if (parentId != null) { 
+            console.log("Signup - In render routine - redirecting user to parent...");
             return(
                 <Redirect to={`/parent/${email}`} />
             )
@@ -273,11 +271,6 @@ class SignUp extends React.Component {
                                     <option value="CA">MA</option>                                
                                     <option value="CA">NY</option>
                                 </select>
-                                {/* <input 
-                                    name="resState" 
-                                    type="text"
-                                    value = {this.state.resState}
-                                    onChange={this.handleChange} /> */}
                             </label>
                             <br />
 

@@ -3,15 +3,13 @@
 class ParentInfo extends React.Component {
     constructor(props) {
         super(props);
-        console.log("In ParentInfo Constructor " + props.emailFromApp + "-" + props.idFromApp + "-" + props.parentIdFromApp)
 
         //Initial state of component
         this.state = {
             isLoading: true,
             errorMessage: "",
-            parentId: this.props.getParentDetails(),
+            parentId: this.props.parentId,
             email: this.props.email,
-            id: this.props.id,
             parentFname: "",
             parentLname: "",
             address1: "",
@@ -25,16 +23,10 @@ class ParentInfo extends React.Component {
             childLname: "",
             grade: "",
             schoolId: "",
-            emailFromApp: "",
-            idFromApp: "",
-            parentIdFromApp: ""
         };
 
-        console.log("In ParentInfo Constructor after state " + this.props.emailFromApp + "-" + props.idFromApp + "-" + props.parentIdFromApp)
-
-        
-        console.log("In parentInfo parentId : " + this.state.parentId)
-        console.log("In parentInfo getParentDetails : " + this.props.getParentDetails())
+        console.log("Parent Info - parentId : " + this.state.parentId)
+  //      console.log("Parent Info - getParentDetails : " + this.props.getParentDetails())
 
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -42,14 +34,15 @@ class ParentInfo extends React.Component {
         }
     
     async componentDidMount() {
-        console.log("In ParentInfo componentDidMount " + this.props.emailFromApp + "-" + this.props.idFromApp + "-" + this.props.parentIdFromApp)
+        console.log("Parent Info - Going to fetch data")
 
         //Get Parent Information from the database
+
             const response = await fetch(`/api/parent/id=${this.state.parentId}`);
             const parentData = await response.json();
             this.setState({
                 isLoading: false,
-                id: parentData.id,
+                parentId: parentData.id,
                 parentFname: parentData.parentFname,
                 parentLname: parentData.parentLname,
                 address1: parentData.address1,
@@ -69,14 +62,14 @@ class ParentInfo extends React.Component {
                     let childData = await childResponse.json();
                     if ((childData != "[object Promise]") && (childData != "")) {
                         // alert("You have logged in successfully");
-                        console.log("There is at least one record!");
+                        console.log("Parent Info - There is at least one record!");
                         console.log(childData);
                         
                         if (childData.childFname !== ""){
-                            console.log("Child Fname returned " + childData.childFname)
+                            console.log("Parent Info - Child Fname returned " + childData.childFname)
                             this.setState({
                                 isLoading: false,
-                                id: childData.id,
+                                childId: childData.id,
                                 childFname: childData.childFname,
                                 childLname: childData.childLname,
                                 grade: childData.grade,
@@ -122,16 +115,21 @@ class ParentInfo extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
      //   this.validateChild();
-        console.log("In handleSubmit routine of ParentInfo..")
+        console.log("Parent Info - In handleSubmit routine..")
 
         const ErrMsg = this.state.errorMessage
         if (ErrMsg !== "") {
             alert(this.state.errorMessage);
             this.setState({errorMessage: ""});
         } else {
+                console.log("Parent Info - Going to insert data in Child table..")
                 const { childFname, childLname, 
                     grade, schoolId, parentId} = this.state;
   
+                console.log("Parent Info - Unpacked list below..")
+                console.log("Parent Info - ", childFname, "--", childLname, "--", 
+                grade, "--", schoolId, "--", parentId, "--")
+
                 const requestOptions = {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -139,18 +137,19 @@ class ParentInfo extends React.Component {
                                                     grade, schoolId, parentId })
                 }
                 
+                console.log("Parent Info - requestOptions", requestOptions, "--")
                 fetch('/api/child/add', requestOptions)
                   .then(res => res.json())
                   .then(data => {
                       alert("You've added your child details successfully")
-                      console.log(childFname)
-                      this.setState({id: data.id})
+                      console.log(`Parent Info - In handleSubmit routine, child's first name is: ${childFname}`)
+                      this.setState({childId: data.id})
                   });
                   }
     }
 
     render() {
-        console.log("In render routine of ParentInfo class..");
+        console.log("Parent Info - In render routine..");
 
         return (
             <div id="container">
@@ -184,7 +183,7 @@ class ParentInfo extends React.Component {
                 </div>
                 <div class="row ml-3">
                     <div class="col-9 text-dark">
-                        <h5>Please enter children details:</h5>
+                        <h5>Children Information:</h5>
                     </div>
                 </div>
                 <form onSubmit={this.handleSubmit}> 
@@ -226,24 +225,18 @@ class ParentInfo extends React.Component {
                         </label>          
                         <br />
                         <label> Grade:    
-                        <select name="grade" onChange={this.handleChange}>
-                            <option value="TK">TK</option>
-                            <option value="Kinder">Kinder</option>
-                            <option value="G1">G1</option>
-                            <option value="G2">G2</option>
-                            <option value="G3">G3</option>
-                            <option value="G4">G4</option>
-                            <option value="G5">G5</option>
-                            <option value="G6">G6</option>
-                            <option value="G7">G7</option>
-                            <option value="G8">G8</option>
-                        </select>  
-                            {/* <input 
-                                name="grade" 
-                                type="text" 
-                                placeholder = "Grade"
-                                value = {this.state.grade}
-                                onChange={this.handleChange} /> */}
+                            <select name="grade" onChange={this.handleChange}>
+                                <option value="TK">TK</option>
+                                <option value="K">K</option>
+                                <option value="G1">G1</option>
+                                <option value="G2">G2</option>
+                                <option value="G3">G3</option>
+                                <option value="G4">G4</option>
+                                <option value="G5">G5</option>
+                                <option value="G6">G6</option>
+                                <option value="G7">G7</option>
+                                <option value="G8">G8</option>
+                            </select>  
                         </label>          
                         <br />
                         <label>School:       

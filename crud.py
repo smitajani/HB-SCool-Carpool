@@ -27,6 +27,11 @@ def get_children_by_parent_id(parent_id):
     print("In get children by parent id in CRUD.py")
     return db.session.query(Child).filter(Child.parent_id == parent_id).first() 
 
+def get_schools_by_zipcode(zipcode):
+    """ Return the records for all schools in zipcode """
+    print("In get schools by zip code in CRUD.py")
+    return db.session.query(School).filter(School.zipcode == zipcode).all()
+
 def get_all(table):
     """ Return a list of all records from table specified (Parent, School, Child, 
         Availability or Booked_Ride) """

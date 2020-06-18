@@ -157,6 +157,11 @@ def create_child():
         result = "Error inserting child"
         return result
     
+@app.route('/api/school/zipcode=<zip_code>')
+def get_schools_in_near_zipcode(zip_code):
+    schools = crud.get_schools_by_zipcode(zip_code)
+    print(f'*** In server.py get_schools_in_near_zipcode, {schools}')
+    return jsonify(schools)
 
 # @app.route('/', defaults={'path':''})
 # @app.route('/<path:path>')

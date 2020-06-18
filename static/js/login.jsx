@@ -12,14 +12,15 @@ class Login extends React.Component {
         errorMessage: "",
         
         email: this.props.email,
-        emailFromApp: this.props.emailFromApp,
-        idFromApp: this.props.idFromApp,
-        parentIdFromApp: this.props.parentIdFromApp,
-        id: "",
+        parentId: this.props.parentId,
+        
     };
-    //console.log(`In constructor of login app - ${emailFromApp}}, ${idFromApp}, ${parentIdFromApp}`);
-    console.log(`In constructor of login app 2. - ${props.emailFromApp}, ${props.idFromApp}, ${props.parentIdFromApp}`);
     
+    console.log(`In constructor of login app 2. - ${this.state.email}, ${this.state.parentId}`);
+    
+    //console.log(`In constructor of login app 3. - ${this.email}, ${this.parentId}`); - Both show as undefined.
+       
+
     // Required binding to make `this` work in the callback
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -28,19 +29,19 @@ class Login extends React.Component {
 
   //Handle Change event 
   handleChange = event => {
-    console.log("In handleChange routine...");
+    console.log("Login - In handleChange routine...");
     this.setState({ [event.target.name] : event.target.value})
   }
 
   async userExists() {
 
-    console.log("In userExists routine...");
+    console.log("Login - In userExists routine...");
 
     const email = this.state.email;
-    console.log(email)
+    console.log(`Login - email: ${email}`)
 
     const fetch_URL = (`/api/parent/email=${email}`);
-    console.log(`Fetch URL: ${fetch_URL}`);
+    console.log(`Login - Fetch URL: ${fetch_URL}`);
 
     let res = await fetch(fetch_URL);
       
@@ -49,8 +50,7 @@ class Login extends React.Component {
       if ((data != "[object Promise]") && (data != "")) {
           // alert("You have logged in successfully");
           console.log("You have logged in successfully");
-          console.log(data);
-          this.setState({id: data.id})
+          console.log(`Login - data: ${data}`);
           this.props.setParentDetails([data.id,data.email])
           return data;
       } 
@@ -73,18 +73,18 @@ class Login extends React.Component {
 
 
   handleSubmit(event) {
-      console.log("In handleSubmit routine...");
+      console.log("Login - In handleSubmit routine...");
       event.preventDefault();
-      console.log(this.state.email)
+      console.log(`Login - email: ${this.state.email}`)
       
       //Check if the record exists
       const data = this.userExists();
-      console.log(`..And my data is: ${data}`);
+      console.log(`Login - ..And my data is: ${data}`);
 
-      const { errorMessage, email, id } = this.state;
-      console.log(`errorMessage is ${errorMessage}`)
-      console.log(`email is ${email}`)
-      console.log(`id (id) is ${id}`)
+      const { errorMessage, email, parentId} = this.state;
+      console.log(`Login - errorMessage is ${errorMessage}`)
+      console.log(`Login - email is ${email}`)
+      console.log(`Login - parentId is ${parentId}`)
       
       if (errorMessage !== "") {
           alert(errorMessage);
@@ -93,18 +93,16 @@ class Login extends React.Component {
   }
 
   render() { 
-        console.log("In render routine...", this.props.emailFromApp, this.props.idFromApp, this.props.parentIdFromApp);
-        const id = this.state.id;
-        console.log(`*****In render - id is ${id}`);
+        console.log("Login - In render routine...", this.state.email, "--", this.state.parentId, "--");
 
-        if (id != "") { 
-            console.log("In render routine - redirecting user to parent...");
+        if (this.state.parentId != null) { 
+            console.log("Login - In render routine - redirecting user to parent...");
             return(
-                <Redirect to={`/parent/${this.state.id}`} />
+                <Redirect to={`/parent/${this.state.parentId}`} />
             )
         }
         else {
-          console.log("In render routine - displaying the form...");  
+          console.log("Login - In render routine - displaying the form...");  
           return (
               <div id="container">
                   <div id="showerror" class={"row", "ml-3"}>

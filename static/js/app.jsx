@@ -19,7 +19,6 @@ class App extends React.Component {
     super(props);
     this.state = {
       errorMessage: "",
-      id: "", // Initial state of user id passed down from App to Login/Signup/Parent classes
       parentId: sessionStorage.getItem('parentId'), 
       email: "",
       path: '/'
@@ -33,7 +32,7 @@ class App extends React.Component {
   setParentDetails(data) {
     let parentId, email;
     [parentId, email] = data;
-    console.log(`In setParentDetails - ${parentId} - ${email} `)
+    console.log(`App: In setParentDetails - ${parentId} - ${email} `)
     sessionStorage.setItem('parentId', parentId);
     sessionStorage.setItem('email', email);
     this.setState({ parentId: parentId,
@@ -54,17 +53,17 @@ class App extends React.Component {
    }
 
   render() {
-    console.log("In App 'render' routine..", this.state.email, "--", this.state.id, "--", this.state.parentId);
+    console.log("App: In 'render' routine..", this.state.email, "--", this.state.parentId);
     return (  
       <div>
         <Router history={browserHistory}>
           <Switch>
-            <Route path='/parent/:id'><ParentInfo getParentDetails={this.getParentDetails}  emailFromApp={this.state.email} idFromApp={this.state.id} parentIdFromApp={this.state.parentId} /></Route> 
-            <Route path='/signup'><SignUp setParentDetails={this.setParentDetails}/></Route>
+            <Route path='/parent/:id'><ParentInfo email={this.state.email} parentId={this.state.parentId} /></Route> 
+            <Route path='/signup'><SignUp setParentDetails={this.setParentDetails} email={this.state.email} parentId={this.state.parentId} /></Route>
             <Route path='/'>
               {(this.state.parentId) ?
                 <Redirect to={`/parent/${this.state.parentId}`} /> :
-                <Login setParentDetails={this.setParentDetails} emailFromApp={this.state.email} idFromApp={this.state.id} parentIdFromApp={this.state.parentId} />
+                <Login setParentDetails={this.setParentDetails} email={this.state.email} parentId={this.state.parentId} />
               }
               </Route>
           </Switch>
