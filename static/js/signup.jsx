@@ -2,7 +2,7 @@
 class SignUp extends React.Component {
   
     constructor(props) {
-    console.log("Signup - In constructor")
+    console.log("Signup: Constructor")
     super(props);
     
     //Initial state of component
@@ -33,6 +33,9 @@ class SignUp extends React.Component {
     //Handle Change event 
     handleChange = event => {
         this.setState({ [event.target.name] : event.target.value})
+        if (event.target.name == "email")
+            this.userExists();
+
      }
 
 
@@ -59,6 +62,8 @@ class SignUp extends React.Component {
         console.log(`Signup - In handleSubmit: ${this.state.email}`)
       
         //Check if the record exists
+// Check if I need to remove this verification from Submit since it's handled in 'onChange' event.
+
         const data = this.userExists();
         console.log(`Signup - And my data is: ${data}`);
   

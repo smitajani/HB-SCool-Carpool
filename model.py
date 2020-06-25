@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 db = SQLAlchemy()
 
+import json
+from json import JSONEncoder
 
 class Parent(db.Model):
     """A parent"""
@@ -28,8 +30,6 @@ class Parent(db.Model):
 
 
 
-
-
 class Child(db.Model):
     """ A Child """
 
@@ -47,8 +47,8 @@ class Child(db.Model):
     parent = db.relationship('Parent')
 
     def __repr__(self):
-        return f'<Child child_id: {self.id}, Parent: \
-        {parent.parent_fname} {parent.parent_lname}>'
+        return f'<Child child_id: {self.id}, Parent:\
+        {self.parent.parent_fname} {self.parent.parent_lname}>'
 
 class School(db.Model):
     """A school"""
@@ -112,21 +112,26 @@ class Availability(db.Model):
     
     school = db.relationship('School')
     parent = db.relationship('Parent')
-    
 
     def __repr__(self):
-        return f'<Availability availability_id: {self.id}, \
-        Parent: {parent.parent_fname} {parent.parent_lname}, \
-        School: {school.id} {school.school_name}>'
+        return f'<Availability availability_id: {self.id},\
+                 Parent: {self.parent.id},\
+                 School: {self.school.id}>'
+
+        
+class AvailabilityEncoder(JSONEncoder):
+        def default(self, o):
+            return o.__dict__
 
 
 class Booked_Ride(db.Model):
-    """ Availability of rides"""
+    """ Booked rides"""
 
     __tablename__ = 'booked_ride'
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
-    booking_date = db.Column(db.DateTime, nullable=False)
+    booking_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    print("Booking Date in model.py " + booking_date)
 
     availability_id = db.Column(db.Integer, db.ForeignKey('availability.id'))
     parent_id = db.Column(db.Integer, db.ForeignKey('parent.id'))
@@ -138,10 +143,9 @@ class Booked_Ride(db.Model):
     child = db.relationship('Child')
 
     def __repr__(self):
-        return f'<Booked Ride booked_ride_id: {self.id}, \
-        availability_id: {availability.id}, \
-        Parent: {parent.parent_fname} {parent.parent_lname}, \
-        Child: {child.id} {child.child_fname} {child.child_lname}>'
+        return f'<Booked Ride booked_ride_id: {self.id},\
+        availability_id: {self.availability.id}, Parent: {self.parent.id},\
+        Child: {self.child.id}>'
 
 def connect_to_db(flask_app, db_uri='postgresql:///carpool', echo=True):
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri

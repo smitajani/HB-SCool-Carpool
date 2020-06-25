@@ -20,23 +20,27 @@ class App extends React.Component {
     this.state = {
       errorMessage: "",
       parentId: sessionStorage.getItem('parentId'), 
-      email: "",
-      path: '/'
+      email: this.props.email,
+      path: '/',
+      zipcode: this.props.zipcode
     };
 
     this.setParentDetails = this.setParentDetails.bind(this);
     this.getParentDetails = this.getParentDetails.bind(this);
     this.handleChange = this.handleChange.bind(this)
+    console.log("App.jsx: constructor")
   }
 
   setParentDetails(data) {
-    let parentId, email;
-    [parentId, email] = data;
-    console.log(`App: In setParentDetails - ${parentId} - ${email} `)
+    let parentId, email, zipcode;
+    [parentId, email, zipcode] = data;
+    console.log(`App.jsx: In setParentDetails parentId, email, zipcode --/  ${parentId} --/ ${email} --/ ${zipcode} --`)
     sessionStorage.setItem('parentId', parentId);
     sessionStorage.setItem('email', email);
+    sessionStorage.setItem('zipcode', zipcode);
     this.setState({ parentId: parentId,
-                    email: email 
+                    email: email, 
+                    zipcode: zipcode
                   });
   }
 
@@ -52,18 +56,22 @@ class App extends React.Component {
       this.setState({ [event.target.name] : event.target.value})
    }
 
+  //TODO GLOBAL - Replace all javascript alerts with error message (self disappearing) divs in all classes
+
   render() {
-    console.log("App: In 'render' routine..", this.state.email, "--", this.state.parentId);
+    console.log("App.jsx: In 'render' routine (email, parentId, zipcode --/", this.state.email, "--/", this.state.parentId, "--/", this.state.zipcode);
     return (  
       <div>
         <Router history={browserHistory}>
           <Switch>
-            <Route path='/parent/:id'><ParentInfo email={this.state.email} parentId={this.state.parentId} /></Route> 
+            <Route path='/parent/:id'>
+                <ParentInfo email={this.state.email} parentId={this.state.parentId} zipcode={this.state.zipcode} />
+            </Route> 
             <Route path='/signup'><SignUp setParentDetails={this.setParentDetails} email={this.state.email} parentId={this.state.parentId} /></Route>
             <Route path='/'>
               {(this.state.parentId) ?
-                <Redirect to={`/parent/${this.state.parentId}`} /> :
-                <Login setParentDetails={this.setParentDetails} email={this.state.email} parentId={this.state.parentId} />
+                <Redirect to={`/parent/${this.state.parentId}`} email={this.state.email} zipcode={this.state.zipcode} /> :
+                <Login setParentDetails={this.setParentDetails} email={this.state.email} parentId={this.state.parentId} zipcode={this.state.zipcode} />
               }
               </Route>
           </Switch>

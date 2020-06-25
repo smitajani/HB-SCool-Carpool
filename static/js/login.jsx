@@ -3,7 +3,6 @@
 class Login extends React.Component {
 
   constructor(props) {
-    console.log("Login constructor")
     super(props);
     
     //Initial state of component
@@ -13,10 +12,11 @@ class Login extends React.Component {
         
         email: this.props.email,
         parentId: this.props.parentId,
+        zipcode: this.props.zipcode
         
     };
     
-    console.log(`In constructor of login app 2. - ${this.state.email}, ${this.state.parentId}`);
+    console.log(`Login.jsx: constructor (email & parentId) - ${this.state.email}, ${this.state.parentId}`);
     
     //console.log(`In constructor of login app 3. - ${this.email}, ${this.parentId}`); - Both show as undefined.
        
@@ -29,19 +29,19 @@ class Login extends React.Component {
 
   //Handle Change event 
   handleChange = event => {
-    console.log("Login - In handleChange routine...");
+    console.log("Login.jsx: In handleChange routine...");
     this.setState({ [event.target.name] : event.target.value})
   }
 
   async userExists() {
 
-    console.log("Login - In userExists routine...");
+    console.log("Login.jsx: In userExists routine...");
 
     const email = this.state.email;
-    console.log(`Login - email: ${email}`)
+    console.log(`Login.jsx: (email) ${email}`)
 
     const fetch_URL = (`/api/parent/email=${email}`);
-    console.log(`Login - Fetch URL: ${fetch_URL}`);
+    console.log(`Login.jsx: Fetch URL: ${fetch_URL}`);
 
     let res = await fetch(fetch_URL);
       
@@ -50,8 +50,15 @@ class Login extends React.Component {
       if ((data != "[object Promise]") && (data != "")) {
           // alert("You have logged in successfully");
           console.log("You have logged in successfully");
-          console.log(`Login - data: ${data}`);
-          this.props.setParentDetails([data.id,data.email])
+          console.log(`Login.jsx: (data) ${data}`);
+
+          this.setState({
+            isLoading: false,
+            errorMessage: "",
+            zipcode: data.zipcode
+          });
+
+          this.props.setParentDetails([data.id, data.email, data.zipcode])
           return data;
       } 
       else if (data == "[object Promise]") {
@@ -73,18 +80,16 @@ class Login extends React.Component {
 
 
   handleSubmit(event) {
-      console.log("Login - In handleSubmit routine...");
+      console.log("Login.jsx: In handleSubmit routine...");
       event.preventDefault();
-      console.log(`Login - email: ${this.state.email}`)
+      console.log(`Login.jsx: (email): ${this.state.email}`)
       
       //Check if the record exists
       const data = this.userExists();
-      console.log(`Login - ..And my data is: ${data}`);
+      console.log(`Login.jsx: And my data is: ${data}`);
 
-      const { errorMessage, email, parentId} = this.state;
-      console.log(`Login - errorMessage is ${errorMessage}`)
-      console.log(`Login - email is ${email}`)
-      console.log(`Login - parentId is ${parentId}`)
+      const { errorMessage, email, parentId, zipcode} = this.state;
+      console.log(`Login.jsx: (errorMessage, email, parentId, zipcode) --/  ${errorMessage} --/ ${email} --/ ${parentId} --/ ${zipcode} --`)
       
       if (errorMessage !== "") {
           alert(errorMessage);
@@ -93,16 +98,17 @@ class Login extends React.Component {
   }
 
   render() { 
-        console.log("Login - In render routine...", this.state.email, "--", this.state.parentId, "--");
+        console.log("Login.jsx: In render routine (email, parentId, zipcode --/", this.state.email, "--/",
+        this.state.parentId, "--/", this.state.zipcode, "--");
 
         if (this.state.parentId != null) { 
-            console.log("Login - In render routine - redirecting user to parent...");
+            console.log("Login.jsx: In render routine - redirecting user to parent...");
             return(
-                <Redirect to={`/parent/${this.state.parentId}`} />
+                <Redirect to={`/parent/${this.state.parentId}`}  email={this.state.email} parentId={this.state.parentId} zipcode={this.state.zipcode} />
             )
         }
         else {
-          console.log("Login - In render routine - displaying the form...");  
+          console.log("Login.jsx: In render routine - displaying the form...");  
           return (
               <div id="container">
                   <div id="showerror" class={"row", "ml-3"}>
