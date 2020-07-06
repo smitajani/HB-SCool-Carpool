@@ -4,7 +4,6 @@ import datetime
 db = SQLAlchemy()
 
 import json
-from json import JSONEncoder
 
 class Parent(db.Model):
     """A parent"""
@@ -117,11 +116,6 @@ class Availability(db.Model):
         return f'<Availability availability_id: {self.id},\
                  Parent: {self.parent.id},\
                  School: {self.school.id}>'
-
-        
-class AvailabilityEncoder(JSONEncoder):
-        def default(self, o):
-            return o.__dict__
 
 
 class Booked_Ride(db.Model):

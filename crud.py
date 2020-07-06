@@ -21,29 +21,45 @@ def get_parent_by_id(id):
     print(f'In CRUD.py: Fetched get_parent_by_id - {type(parent_by_id)}, {parent_by_id}')
     return parent_by_id
 
-def get_parent_by_email(email):
-    """ Return the record for parent by email """
-    print("In get parent by email in CRUD.py")
-    parent_by_email = db.session.query(Parent).filter(Parent.email == email).first() 
-    print(f'In CRUD.py: Fetched get_parent_by_email - {type(parent_by_email)}, {parent_by_email}')
+def get_parent_by_email_pwd(email, password):
+    """ Return the record for parent by email & password"""
+    print("In get parent by email & password in CRUD.py")
+    parent_by_email = db.session.query(Parent).filter(Parent.email == email).filter(Parent.password == password).first() 
+    print(f'In CRUD.py: Fetched get_parent_by_email_pwd - {type(parent_by_email)}, {parent_by_email}')
     return parent_by_email
+
 
 def get_children_by_parent_id(parent_id):
     """ Return the record for child by parent id """
-    print("In get children by parent id in CRUD.py")
-    return db.session.query(Child).filter(Child.parent_id == parent_id).first() 
+    print("In get children by parent id in CRUD.py", parent_id)
+
+    children = db.session.query(Child).filter(Child.parent_id == parent_id).all() 
+    print(f'In CRUD.py: Fetched get_children_by_parent - {type(children)}, {children}')
+    
+    return children
+
 
 def get_schools_by_zipcode(zipcode):
     """ Return the records for all schools in zipcode """
     print("In get schools by zip code in CRUD.py", zipcode)
 
-    schools = db.session.query(School).filter(School.zipcode == zipcode).all()
+    schools = db.session.query(School).filter(School.zipcode.like(f'%{zipcode}%')).all()
+    info = get_debug_queries()[0]
+    print(info.statement, info.parameters)
     print(f'In CRUD.py: Fetched get_schools_by_zipcode - {type(schools)}, {schools}')
-    print(schools)
-    print("Printed schools above..")
-    
     
     return schools
+
+def get_availability_by_id(id):
+    """ Return the record for availability by id """
+    print("In get availability by id in CRUD.py")
+    return db.session.query(Availability).filter(Availability.id == id).first() 
+
+def get_booked_ride_by_id(id):
+    """ Return the record for booked_ride by id """
+    print("In get booked_ride by id in CRUD.py")
+    return db.session.query(Booked_Ride).filter(Booked_Ride.id == id).first() 
+
 
 # Get open availability by school for the week (Mon to Fri) for a given parent to book rides
 def get_open_availability_by_school(school_id, parent_id, week_start_date):
@@ -53,9 +69,10 @@ def get_open_availability_by_school(school_id, parent_id, week_start_date):
 
     availabilities = db.session.query(Availability, Parent).join(Parent, Parent.id == Availability.parent_id)\
         .filter(Availability.school_id == school_id)\
-        .filter(Availability.parent_id != parent_id).filter(Availability.available_spots > 0)\
         .filter(Availability.ride_date.between(datetime.strptime(week_start_date, "%Y%m%d"), \
-            datetime.strptime(week_start_date, "%Y%m%d")+timedelta(days=5))).all()
+        datetime.strptime(week_start_date, "%Y%m%d")+timedelta(days=5))).all()
+        # .filter(Availability.parent_id != parent_id).filter(Availability.available_spots > 0)\
+
     # info = get_debug_queries()[0]
     # print(info.statement, info.parameters)
 
@@ -76,7 +93,7 @@ def get_availability_by_school(parent_id, school_id, week_start_date):
     # print(info.statement, info.parameters)
     print("CRUD.py: Fetched availability for parent, school & week - ", availabilities)
     return availabilities
-    
+
 # Get availability with all booked rides for a parent in a given week
 # NOT USED THOUGH SINGLE QUERY RETURNS ALL INFO NEEDED FOR A WEEK - NESTED STRUCTURE MAKES IT COMPLEX FOR CLIENT SIDE PROCESSING
 def get_availability_with_booked_rides(parent_id, school_id, week_start_date):
@@ -94,6 +111,20 @@ def get_availability_with_booked_rides(parent_id, school_id, week_start_date):
     # print(info.statement, info.parameters)
     print("CRUD.py: Fetched availability with booked rides for parent & week - ", availabilityWithBookedRides)
     return availabilityWithBookedRides
+
+# Get driver & school addresses for an availability
+def get_addresses_for_availability(availability_id):
+    """ Return the names & addresses for parent driver & school for an availability """
+    print("---> 1. CRUD.py: Get get_addresses_for_availability for availability : ", availability_id)
+
+    availabilityDetails = db.session.query(Availability, Parent, School).\
+                        join(Parent, Parent.id == Availability.parent_id).\
+                        join(School, School.id == Availability.school_id).\
+                        filter(Availability.id == availability_id).first()
+    # info = get_debug_queries()[0]
+    # print(info.statement, info.parameters)
+    print("CRUD.py: Fetched availability details for availability id - ", availabilityDetails)
+    return availabilityDetails
 
 # Get booked rides with driver information for a parent in a given week
 def get_booked_rides_with_driver_info(parent_id, school_id, week_start_date):
@@ -116,16 +147,15 @@ def get_booked_rides_for_availability(availability_id):
     """ Return the booked ride records for an availability """
     print("---> 1. CRUD.py: Get booked ride records for an availability : ", availability_id)
 
-    bookedRidesWithRiderInfo = db.session.query(Booked_Ride, Parent).\
+    bookedRidesWithRiderInfo = db.session.query(Booked_Ride, Parent, Child).\
         join(Parent, Parent.id == Booked_Ride.parent_id).\
         join(Child, Child.id == Booked_Ride.child_id).\
         filter(Booked_Ride.availability_id == availability_id)\
         .order_by(Booked_Ride.booking_date).all()
-    # info = get_debug_queries()[0]
-    # print(info.statement, info.parameters)
+    info = get_debug_queries()[0]
+    print(info.statement, info.parameters)
     print("CRUD.py: Fetched booked ride records with rider information for availability - ", bookedRidesWithRiderInfo)
     return bookedRidesWithRiderInfo
-
 
 # Get all the records from a table
 def get_all(table):
@@ -153,8 +183,8 @@ def create_parent(parent_fname, parent_lname,
                     state = state, 
                     city = city,
                     zipcode = zipcode,
-                    last_login = "06/13/2020",
-                    created_on = "06/13/2020",
+                    last_login = last_login,
+                    created_on = created_on,
                     password = password
                     )
 
@@ -237,7 +267,63 @@ def create_availability(parent_id, school_id, total_spots, available_spots,
                             ride_date = ride_date, 
                             to_school_flag = to_school_flag)
 
+    info = get_debug_queries()[0]
+    print(info.statement, info.parameters)
+
     db.session.add(availability)
     db.session.commit()
 
     return availability
+
+# Update availability method
+def update_availability(availability_id, available_spots):
+
+    """Update existing availability """
+    print("In crud.py - update availability ", availability_id, available_spots)
+
+    availability = get_availability_by_id(availability_id)
+    if (availability != ""):
+        availability.available_spots = available_spots
+
+    db.session.commit()
+
+    return availability
+
+# Delete availability method
+def delete_availability(availability_id):
+
+    """Delete existing availability """
+    print("In crud.py - delete availability ", availability_id)
+
+    db.session.query(Availability).filter(Availability.id == availability_id).delete()
+    db.session.commit()
+
+    return 1
+
+# Create booked_ride method
+def create_booked_ride(availability_id, parent_id, child_id, booking_date):
+
+    """Create and return a new booked_ride """
+    print("In crud.py - create booked_ride ", availability_id, parent_id, child_id, booking_date)
+
+    booked_Ride = Booked_Ride(availability_id = availability_id, 
+                                parent_id = parent_id, 
+                                child_id = child_id,
+                                booking_date = booking_date)
+
+    db.session.add(booked_Ride)
+    db.session.commit()
+    
+    return booked_Ride
+
+# Delete booked_ride method
+def delete_booked_ride(booking_id):
+
+    """Delete existing booked_ride """
+    print("In crud.py - delete booked_ride ", booking_id)
+
+    db.session.query(Booked_Ride).filter(Booked_Ride.id == booking_id).delete()
+
+    db.session.commit()
+
+    return 1

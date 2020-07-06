@@ -1,5 +1,7 @@
 "use strict";
 
+mapboxgl.accessToken = 'pk.eyJ1Ijoic2phbmkiLCJhIjoiY2tic2NvNGk2MDBiODJ4b3E3ajk4MmtuOSJ9.1FkGDgGkzek4mb8hHbsJGA'
+
 const Router = window.ReactRouterDOM.BrowserRouter;
 const Route =  window.ReactRouterDOM.Route;
 const Link =  window.ReactRouterDOM.Link;
@@ -12,6 +14,7 @@ const useLocation = window.ReactRouterDOM.useLocation;
 const useRouteMatch = window.ReactRouterDOM.useRouteMatch;
 const browserHistory = window.ReactRouter;
 const useParams = window.ReactRouterDOM.useParams;
+
 
 class App extends React.Component {
 
@@ -28,6 +31,8 @@ class App extends React.Component {
     this.setParentDetails = this.setParentDetails.bind(this);
     this.getParentDetails = this.getParentDetails.bind(this);
     this.handleChange = this.handleChange.bind(this)
+    this.logout = this.logout.bind(this)
+
     console.log("App.jsx: constructor")
   }
 
@@ -50,6 +55,10 @@ class App extends React.Component {
     return parentId; 
   }
 
+  logout() {
+    this.setState({parentId: ""});
+    sessionStorage.clear()
+}
 
   //Handle Change event 
   handleChange = event => {
@@ -57,21 +66,42 @@ class App extends React.Component {
    }
 
   //TODO GLOBAL - Replace all javascript alerts with error message (self disappearing) divs in all classes
+  //TODO GLOBAL - Clean-up unnecessary state variables in all classes & use props instead
+  //TODO GLOBAL - Include proper error handling everywhere and ensure all corner cases also work properly & not just the happy path
 
   render() {
-    console.log("App.jsx: In 'render' routine (email, parentId, zipcode --/", this.state.email, "--/", this.state.parentId, "--/", this.state.zipcode);
+    console.log("App.jsx: In 'render' routine (email, parentId, zipcode --/", 
+    this.state.email, "--/", 
+    this.state.parentId, "--/", 
+    this.state.zipcode);
+
     return (  
       <div>
         <Router history={browserHistory}>
           <Switch>
             <Route path='/parent/:id'>
-                <ParentInfo email={this.state.email} parentId={this.state.parentId} zipcode={this.state.zipcode} />
+                {/* <ParentInfo email={this.state.email} parentId={this.state.parentId} zipcode={this.state.zipcode} /> */}
+                <ParentInfo email={this.state.email} 
+                  parentId={this.state.parentId} 
+                  zipcode={this.state.zipcode} 
+                  logout={this.logout}/>    
             </Route> 
-            <Route path='/signup'><SignUp setParentDetails={this.setParentDetails} email={this.state.email} parentId={this.state.parentId} /></Route>
+
+            <Route path='/signup'>
+              <SignUp setParentDetails={this.setParentDetails} 
+                email={this.state.email} 
+                parentId={this.state.parentId} 
+                zipcode={this.state.zipcode} />
+              </Route>
+
             <Route path='/'>
-              {(this.state.parentId) ?
-                <Redirect to={`/parent/${this.state.parentId}`} email={this.state.email} zipcode={this.state.zipcode} /> :
-                <Login setParentDetails={this.setParentDetails} email={this.state.email} parentId={this.state.parentId} zipcode={this.state.zipcode} />
+              {(this.state.parentId != undefined && this.state.parentId != "") ?
+                <Redirect to={`/parent/${this.state.parentId}`} 
+                  email={this.state.email}  
+                  parentId={this.state.parentId}
+                  zipcode={this.state.zipcode} /> :
+                
+                <Login setParentDetails={this.setParentDetails} />
               }
               </Route>
           </Switch>

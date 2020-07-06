@@ -1,19 +1,22 @@
 {% extends 'base.html' %} {% block title %} Welcome to S'Cool Carpool! {% endblock %} {% block js %}
-<script src="/static/js/signup.jsx" type="text/jsx"></script>
-<script src="/static/js/login.jsx" type="text/jsx"></script>
+<!-- <script src="/static/js/mymap.jsx" type="text/jsx"></script> -->
+<script src="/static/js/my-mapbox-util.js" type="text/javascript"></script>
+
+<script src="/static/js/showmap.jsx" type="text/jsx"></script>
 <script src="/static/js/rideoptions.jsx" type="text/jsx"></script>
+<script src="/static/js/signup.jsx" type="text/jsx"></script>
 <script src="/static/js/bookings.jsx" type="text/jsx"></script>
 <script src="/static/js/parentinfo.jsx" type="text/jsx"></script>
+<script src="/static/js/login.jsx" type="text/jsx"></script>
 <script src="/static/js/app.jsx" type="text/jsx"></script>
-<!--<script src="/static/js/signup.jsx" type="text/jsx"></script>-->
-{% endblock %} {% block body %}
 
+{% endblock %} {% block body %}
 
 <div id="logoheader" class="row">
     <div class="col-2">
         <img src="/static/img/Logo.png" width="200px" height="175px" />
     </div>
-    <div class="col-7, ml-3, pt-5">
+    <div class="col-7, ml-5, pt-5">
         <h3> Welcome to S'Cool Carpool!</h3>
         <h4> A safe and hassle-free neighborhood carpool for your kids </h4>
     </div>

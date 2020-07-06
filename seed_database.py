@@ -18,17 +18,11 @@ model.db.create_all()
 
 
 ########### SCHOOL DATA
-# Load school data from JSON file
+# Load school data from JSON file 
 with open('data/schools.json') as f:
      schools_info = json.loads(f.read())
 
-
-# Create school 
-
-# schools_in_db list is used to generate fake emails or other fields if required. 
-# Not used currently, so it's commented out. 
-#schools_in_db = []                                              
-
+# Load school data
 for school in schools_info:
 
     # Unpack the values & send as a list to create a record in the backend db
@@ -79,17 +73,12 @@ for school in schools_info:
 
 
 ########### PARENT DATA
-# Load parent data from JSON file
+# Load parent data from JSON file generated from Faker
 with open('data/parents.json') as f:
      parent_info = json.loads(f.read())
 
 
-# Create parent
-
-# Parents_in_db list is used to generate fake emails or other fields if required. 
-# Not used currently, so commented it's out. 
-#parents_in_db = []                                              
-
+# Create & load parent
 for parent in parent_info:
      print(f' Parent..., {parent}')
 
@@ -97,25 +86,10 @@ for parent in parent_info:
     # ADVISOR - Check if this is accurate: 'school' is a dictionary object and cannot be sent as a function argument
 
 
-     # parent_fname, parent_lname, email, phone, \
-     # address1, address2, city, state, zipcode, \
-     # last_login, created_on, password = (parent['parent_fname'],
-     #                            parent['parent_lname'],
-     #                            parent['email'],
-     #                            parent['phone'],
-     #                            parent['address1'],
-     #                            parent['address2'],
-     #                            parent['city'],
-     #                            parent['state'],
-     #                            parent['zipcode'],
-     #                            parent['last_login'],
-     #                            parent['created_on'],
-     #                            parent['password'],
-     #                          )
-
-     parent_fname, parent_lname, email, phone, \
+     parent_lname, parent_fname, \
+     email, phone, \
      address1, address2, city, state, zipcode, \
-     last_login, created_on, password = (parent[0],
+     created_on, last_login, password = (parent[0],
                                 parent[1],
                                 parent[2],
                                 parent[3],
@@ -134,3 +108,28 @@ for parent in parent_info:
                                    email, phone, address1, address2, \
                                    city, state, zipcode, last_login, \
                                    created_on, password)
+     
+
+
+########### CHILDREN DATA
+# Load children data from JSON file generated using Faker
+with open('data/children.json') as f:
+     children_info = json.loads(f.read())
+
+
+# Create & load child
+
+for child in children_info:
+
+    # Unpack the values & send as a list to create a record in the backend db
+     child_fname, child_lname, grade, \
+     school_id, parent_id = (child[0],
+                              child[1],
+                              child[2],
+                              child[3],
+                              child[4]
+                              )
+
+     # Call create_child function from crud.py
+     db_child = crud.create_child(child_fname, child_lname, \
+                                   grade, school_id, parent_id)

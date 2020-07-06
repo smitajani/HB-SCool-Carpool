@@ -1,12 +1,11 @@
 "use strict";
 // TODO - Include D3 based visualizations for Ride Analytics
 // TODO - Rename as ManageAccount with new components for Parent & Child
-
 class ParentInfo extends React.Component {
     constructor(props) {
         super(props);
 
-       //Initial state of component
+        //Initial state of component
         this.state = {
             isLoading: true,
             errorMessage: "",
@@ -25,19 +24,81 @@ class ParentInfo extends React.Component {
             childLname: "",
             grade: "",
             schoolId: "",
-            childId: ""
+            childId: "",
+            toggleChildButton: true,
+			selAvailabilityId: "-1",
+            showBookings: false,
+            showMap: false,
+            children: {},
+            listOfChildren: "",
+            listOfSchools: "",
         };
 
         console.log("Parentinfo.jsx: parentId : " + this.state.parentId)
 
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
-        this.handleInputChange = this.handleInputChange.bind(this)
+        this.toggleChildButton = this.toggleChildButton.bind(this)
+        // this.handleInputChange = this.handleInputChange.bind(this)
         this.getSchools = this.getSchools.bind(this)
+        this.selectChild = this.selectChild.bind(this)
+        this.setSelectedMap = this.setSelectedMap.bind(this)
+        this.hideMap = this.hideMap.bind(this)
+        this.handleLogout = this.handleLogout.bind(this)
+        }
+    
+        handleLogout(event) {
+            this.setState({parentId: ""})
+            this.props.logout()
         }
 
+    toggleChildButton() {
+            const toggleChildButton = this.state.toggleChildButton;
+            this.setState({ toggleChildButton: !toggleChildButton });
+  
+    }
 
+    setSelectedMap(availabilityId) {
+        console.log("In parent info setSelectedMap : " + availabilityId)
+        this.getAddressesForTrip(availabilityId)
+    }
+        
+          hideMap(event) {
+            this.setState({showMap: false });
+          };        
+    
+        async getAddressesForTrip(availabilityId) {
+        console.log("Parent Info - Going to fetch addresses for trip")
 
+        //Get Address Information for the trip from the database
+        const addressesResponse = await fetch(`/api/availability/id=${availabilityId}`);
+ 
+        if (addressesResponse.ok) {
+            let addressData = await addressesResponse.json();
+            if ((addressData != "[object Promise]") && (addressData != "")) {
+                console.log("Parent Info - There is at least one addressData record!");
+                console.log(addressData);
+                
+                this.setState({
+                    isLoading: false,
+                    tripAddresses: addressData,
+                    showMap: true
+                });
+            } else if (addressData == "[object Promise]") {
+                alert("Loading data..");
+                console.log("Parent Info - Loading address data");
+                return; 
+                } else {
+                alert("There are no address details...")
+                console.log("Parent Info - No address data");
+                return;
+                }
+            } else {
+                alert("HTTP-Error: " + addressesResponse.status);
+                console.log("Parent Info - HTTP-Error, ", addressesResponse.status);
+                return;
+            } 
+        }
 
  
     //Get Parent Information from the database    
@@ -103,10 +164,6 @@ class ParentInfo extends React.Component {
         
         //Get School Information from the database
         let zipcode = this.state.zipcode;
-        
-        if (zipcode != "94087-3300") {
-            zipcode="94087-3300"
-        }
 
         const fetch_URL = (`/api/schools/zipcode=${zipcode}`);
         console.log(`ParentInfo.jsx: getSchools() - Fetch URL: ${fetch_URL}`);
@@ -120,13 +177,26 @@ class ParentInfo extends React.Component {
                 console.log("Parentinfo.jsx: getSchools() - There is at least one school record!");
                 console.log(`Parentinfo.jsx: getSchools() - School data: ${schoolData}`);
                 console.log(schoolData);
-
+        
+                const listOfSchools = [];
+        
+                for (const id in schoolData) {
+                    listOfSchools.push(
+                        <option value={id}>
+                            {schoolData[id]}
+                        </option>
+                    )
+                    console.log(listOfSchools)
+                }
+        
                 this.setState({
                     isLoading: false,
-                    schoolId: schoolData.id,
-                    schoolName: schoolData.school_name
+                    schools: schoolData,
+                    listOfSchools: listOfSchools
                 });
-                return schoolData;
+                
+                return;
+        
             }
             else if (schoolData == "[object Promise]") {
                 this.setState({errorMessage: "Loading.."});
@@ -155,42 +225,50 @@ class ParentInfo extends React.Component {
         let childResponse = await fetch(`/api/child/parent=${this.state.parentId}`);
              
         if (childResponse.ok) {
-            let childData = await childResponse.json();
-            if ((childData != "[object Promise]") && (childData != "")) {
+            let children = await childResponse.json();
+            if ((children != "[object Promise]") && (children != "")) {
                 // alert("You have logged in successfully");
-                console.log("Parentinfo.jsx: There is at least one child record!");
-                console.log("Parentinfo.jsx: childData --", childData);
-                
-                if (childData.childFname !== null){
-                    console.log("Parentinfo.jsx: Child Fname returned " + childData.childFname)
-                    this.setState({
-                        isLoading: false,
-                        childId: childData.id,
-                        childFname: childData.childFname,
-                        childLname: childData.childLname,
-                        grade: childData.grade,
-                        schoolId: childData.schoolId,
-                        parentId: childData.parentId
-                    });
-                }
-            } else if (childData == "[object Promise]") {
-                alert("Loading data..");
-                console.log("Parentinfo.jsx: Loading child info");
+                console.log("Parentinfo.jsx: getChildren() - There is at least one child record!");
+                console.log("Parentinfo.jsx: getChildren() - Child data --", children);
+                   
+                let selectedChild = "";
+                let selectedSchool = "";
+                // Set the first (or only child in case of only one child) child as the selected one so that the schedule can be displayed for the selected child
+                    for (const items of Object.values(children)) {
+                        if (selectedChild == "") {
+                            selectedChild = items[0];
+                            selectedSchool = items[4]
+
+                            console.log("Parentinfo.jsx: getChildren() - Default selection --", selectedChild, selectedSchool)
+
+                            this.setState({
+                                isLoading: false,
+                                childId: selectedChild,
+                                schoolId: selectedSchool,
+                                children: children
+                            });
+                            return;
+                        }
+                    }
+             
+            } else if (children == "[object Promise]") {
+                this.setState({errorMessage: "Loading.."});
+                console.log("Parentinfo.jsx: getChildren() - Loading child data");
                 return; 
-                } else {
-                alert("There are no child records...")
-                console.log("Parentinfo.jsx: HTTP-Error, ", childResponse.status);
-                return;
-                }
             } else {
-                alert("HTTP-Error: " + childResponse.status);
-                console.log("Parentinfo.jsx: HTTP-Error, ", childResponse.status);
+                this.setState({errorMessage: "Unable to fetch children"});
+                console.log("ParentInfo.jsx: getChildren() - unable to fetch schools");
+                alert("Unable to fetch child data")
                 return;
-            } 
+            }
+        } else {
+            this.setState({errorMessage: "Hmm..Something is not right!"});
+            console.log("ParentInfo.jsx: getChildren() - HTTP error");
+            alert("HTTP-Error: " + childResponse.status);
+            return;
+        } 
  
-     }
- 
- 
+    }
 
     componentDidMount() {
         console.log("Parentinfo.jsx: componentDidMount - Going to fetch parent data")
@@ -203,7 +281,6 @@ class ParentInfo extends React.Component {
 
         console.log("Parentinfo.jsx: componentDidMount - Going to fetch children info")
         const children = this.getChildren();
-
     }
 
     //Post MVP: Get the message display working and expand on field validations
@@ -212,13 +289,13 @@ class ParentInfo extends React.Component {
         if (this.state.childFname.length < 2) {
 
             this.state.errorMessage = "Please enter a valid first name!"
-                //Render the error message in the Error-Message tag
+                //TODO: Render the error message in the Error-Message tag
                 return (this.state.errorMessage)
             }
         
         if (this.state.childLname.length < 2) {
             this.state.errorMessage = "Please enter a valid last name!"
-            //Render the error message in the Error-Message tag
+            //TODO: Render the error message in the Error-Message tag
             return(this.state.errorMessage)
         }
         
@@ -229,16 +306,14 @@ class ParentInfo extends React.Component {
     this.setState({ [event.target.name] : event.target.value})
     }
 
-    handleInputChange(event) {
-        const target = event.target;
-    //    const value = target.name === 'isGoing' ? target.checked : target.value;
-        const name = target.name;
-        const value = target.checked;
-    
-        this.setState({
-          [name]: value
-        });
-      }
+
+    //Child name click event 
+    selectChild = event => {
+        this.setState({ childId: [event.target.name]})
+        
+        console.log("Selected child 1: " + [event.target.name])
+        console.log("Selected child 2: " + this.state.childId)
+    }
 
     handleSubmit(event) {
         event.preventDefault();
@@ -276,76 +351,91 @@ class ParentInfo extends React.Component {
                   }
     }
 
-
     //   TODO - Apply proper CSS so that the screens look more visually appealing and show contemporary UI
     render() {
-        console.log("Parent Info - In render routine..", this.state.schoolId);
+        console.log("Parent Info - In render routine..");
+
+        let listOfChildren = []
+        if (this.state.children != undefined) {
+            for (const child of Object.values(this.state.children)) {
+                if (child[0] == this.state.childId) {
+                    listOfChildren.push(
+                            <a name={child[0]} class="line-wipe selected-child" id={child[0]} onClick={this.selectChild}>
+                            &nbsp;&nbsp;{child[1]} ({child[3]})&nbsp;&nbsp;|</a> 
+                    )}
+                else {
+                    listOfChildren.push(
+                            <a name={child[0]} class="line-wipe custom-display-text" id={child[0]} onClick={this.selectChild}>
+                            &nbsp;&nbsp;{child[1]} ({child[3]})&nbsp;&nbsp;|</a> 
+                )}    
+            }
+        }
+
+        if (this.state.parentId == "") {
+            return (<Redirect to="/" />);
+        }
+
         return (
-
- //            <ManageAccount email={this.state.email} parentId={this.state.parentId} zipcode={this.state.zipcode} />
-
-                <div id="container">
-                    <div id="showerror" class="row">
-                        <div class="col">
-                            {/* <textarea name="errorMessage" value={this.state.value} onChange={this.handleChange} /> */}
-                        </div>
-                    </div>
-                    <div class="row ml-3">
-                        {/*
-                        <div class="col-9 text-dark border-left border-info border-right border-info border-top border-info"> */}
-                            <div class="col-9">
-                                <h5>Parent Details</h5>
-                            </div>
-                        </div>
-                        <div class="row ml-3">
-                            {/*
-                            <div class="col-5 text-secondary border-bottom border-info border-left border-info"> */}
-                                <div class="col-5">
-                                    <p>Parent Name: {this.state.parentFname} {this.state.parentLname}</p>
+                <div id="container" class="ml-3">
+                    <section class="row ml-3">
+                        <div class="col-5">
+                            <input type="checkbox" id="drawer-toggle" name="drawer-toggle" hidden/>
+                                <label for="drawer-toggle" id="drawer-toggle-label"></label>
+                                <header>{this.state.parentFname} {this.state.parentLname}</header> 
+                                <nav id="drawer">
+                                <div class="custom-drawer-text">
+                                    <br />
+                                    <h5>Parent: {this.state.parentFname} {this.state.parentLname}</h5>
+                                    <br />
                                     <p>Phone: {this.state.phone}</p>
                                     <p>Email: {this.state.email}</p>
+                                    <p>Address: {this.state.address1},</p>
+                                    <p>        {this.state.address2}</p>
+                                    <p>        {this.state.city}</p>
+                                    <p>        {this.state.resState} - {this.state.zipcode}</p>
                                 </div>
-                                {/*
-                                <div class="col-4 text-secondary border-bottom border-info border-right border-info"> */}
-                                    <div class="col-4">
-                                        <p>Address: {this.state.address1},</p>
-                                        <p>{this.state.address2}</p>
-                                        <p>{this.state.city}, {this.state.resState} - {this.state.zipcode}</p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <br /><br />
-                                </div>
-                                <div class="row ml-3">
-                                    <div class="col-9 text-dark">
-                                        <h5>Children Information:</h5>
-                                    </div>
-                                </div>
-                                <form onSubmit={this.handleSubmit}>
-                                    <div class="row ml-3">
-                                        <div class="col-2">
-                                            <label> First name:       
-                                        <input 
-                                            name="childFname" 
-                                            type="text" 
-                                            placeholder = "First Name"
-                                            value={this.state.childFname}
-                                            onChange={this.handleChange} />
-                                    </label>
-                                        </div>
-                                        <div class="col-2">
-                                            <label> Last name:
-                                        <input 
-                                            name="childLname" 
-                                            type="text" 
-                                            placeholder = "Last Name"
-                                            value={this.state.childLname}
-                                            onChange={this.handleChange} />
-                                    </label>
-                                        </div>
-                                        <div class="col-2" align="center">
-                                            <label> Grade:    <br />
-                                        <select name="grade" onChange={this.handleChange}>
+                            </nav>
+                        </div>
+                        <div class="col-6">
+                                <nav>{listOfChildren} <button id="P" name="P" type="button" class="btn btn-link" onClick={this.toggleChildButton}>+</button></nav>
+                                {/* <button class="btn custom-button-1" onClick={this.toggleChildButton}>+</button> */}
+                        </div>
+                        <div class="col-1">
+                         <button id="P" name="P" type="button" class="btn btn-link" onClick={this.handleLogout}>Logout</button>
+                            {/* <a class="line-wipe" onClick={this.handleLogout}>Logout</a> */}
+                        </div>
+                    </section>
+                    <section class="row ml-3" hidden={this.state.toggleChildButton}>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <td>First name</td>
+                                    <td>Last name</td>
+                                    <td>Grade</td>
+                                    <td>School</td>
+                                    <td></td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="input-td">
+                                <td><input 
+                                        name="childFname" 
+                                        type="text" 
+                                        class = "custom-input"
+                                        placeholder = "First Name"
+                                        value={this.state.childFname}
+                                        onChange={this.handleChange} />
+                                </td>
+                                <td><input 
+                                        name="childLname" 
+                                        type="text" 
+                                        class = "custom-input"
+                                        placeholder = "Last Name"
+                                        value={this.state.childLname}
+                                        onChange={this.handleChange} />
+                                </td>
+                                <td><select name="grade" class="custom-select-dd" onChange={this.handleChange}>
+                                        <option value="-1">Select grade</option>
                                             <option value="TK">TK</option>
                                             <option value="K">K</option>
                                             <option value="G1">G1</option>
@@ -357,40 +447,55 @@ class ParentInfo extends React.Component {
                                             <option value="G7">G7</option>
                                             <option value="G8">G8</option>
                                         </select>  
-                                    </label>
-                                        </div>
-                                        {/* TODO - Include a Mapbox based school selector */}
-                                        <div class="col-2">
-                                            <label>School:       
-                                        <input 
-                                            name="schoolId" 
-                                            type="text" 
-                                            placeholder = "School"
-                                            value = {this.state.schoolId}
-                                            onChange={this.handleChange} 
-                                            />
-                                    </label>
-                                        </div>
-                                        <div class="col-2">
-                                            <br /> {this.state.childFname?
-                                            <label>
-                                            <button>Edit & Save</button>
-                                        </label> :
-                                            <label>
-                                        <button>Submit</button>
-                                    </label> }
-                                        </div>
-                                    </div>
-                                </form>
-                                <label hidden><Link to="/volunteer">Volunteer as driver</Link></label>
-                                <br /><br /> {this.state.schoolId ?
-                                <Bookings parentId={this.state.parentId} schoolId={this.state.schoolId} childId={this.state.childId} /> :
-                                <div></div>
-                                }
+                                </td>
+                                <td><select name="schoolId" class="custom-select-dd" 
+                                            value={this.state.schoolId} onChange={this.handleChange}>
+                                            <option value="-1">Select school</option>
+                                            {this.state.listOfSchools}
+                                    </select> 
+                                </td>
+                                <td>
+                                    <button class="btn custom-button-1" onClick={this.handleSubmit}>Save</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                    <div id="container font-weight-light">
+                        { this.state.showMap ? 
+                            <div className={this.state.showMap ? "modal display-block" : "modal display-none"}>
+                                <div className='sidebarStyle'>
+                                    <div>Date: {this.state.tripAddresses.ride_date} | Driver: {this.state.tripAddresses.driver_name} | Destination: {this.state.tripAddresses.school_name}</div>
+                                </div>            
+                                <div class="mapContainer">
+                                    <ShowMap showMap={this.state.showMap} handleClose={this.hideMap} 
+                                    token={mapboxgl.accessToken} tripAddresses={this.state.tripAddresses} />
+                                    {/* <MyMap showMap={this.state.showMap} handleClose={this.hideMap} /> */}
+                                </div>
+                                <div className="mapCloseStyle">
+                                    <button onClick={this.hideMap}>Close</button>
+                                </div>
                             </div>
-
-
-
+                        :
+                        <div></div>
+                        }
+                        <div id="showerror" class="row">
+                            <div class="col">
+                                {/* <textarea name="errorMessage" value={this.state.value} onChange={this.handleChange} /> */}
+                            </div>
+                        </div>
+                        <label hidden><Link to="/volunteer">Volunteer as driver</Link></label>
+                        <br /><br />
+                        {this.state.childId ?
+                            <div>
+                                <Bookings parentId={this.state.parentId} schoolId={this.state.schoolId} childId={this.state.childId} 
+                                handleMapClick={this.setSelectedMap} />
+                            </div>
+                            :
+                            <div></div>
+                        }
+                    </div>
+            </div>
         );
     }
-} 
+}

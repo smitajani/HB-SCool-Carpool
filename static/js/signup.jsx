@@ -33,11 +33,7 @@ class SignUp extends React.Component {
     //Handle Change event 
     handleChange = event => {
         this.setState({ [event.target.name] : event.target.value})
-        if (event.target.name == "email")
-            this.userExists();
-
      }
-
 
     //Post MVP: Get the message display working and expand on field validations
     validateParent() {
@@ -62,7 +58,7 @@ class SignUp extends React.Component {
         console.log(`Signup - In handleSubmit: ${this.state.email}`)
       
         //Check if the record exists
-// Check if I need to remove this verification from Submit since it's handled in 'onChange' event.
+        // Check if I need to remove this verification from Submit since it's handled in 'onChange' event.
 
         const data = this.userExists();
         console.log(`Signup - And my data is: ${data}`);
@@ -205,130 +201,178 @@ class SignUp extends React.Component {
             )
         }
         
-        // else {
-            return(
-                <div>
-                    {(this.state.isLoading) ? 
-                    <div>Loading..</div> :      
-                    <div class={"row", "ml-3"}>
-                        <h5>Signup to start booking rides</h5>
-                        <form onSubmit={this.handleSubmit}>
-                                        
-                            <label>
-                                First Name: 
-                                <input 
-                                    name="parentFname" 
-                                    type="text" 
-                                    placeholder = "First Name"
-                                    value={this.state.parentFname}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-
-                            <label>
-                                Last Name: 
-                                    <input 
-                                    name="parentLname" 
-                                    type="text" 
-                                    placeholder = "Last Name"
-                                    value={this.state.parentLname}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-
-                            <label>
-                                Address-1: 
-                                <input 
-                                    name="address1" 
-                                    type="text" 
-                                    placeholder = "Street Address"
-                                    value = {this.state.address1}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-
-                            <label>
-                                Address-2: 
-                                <input 
-                                    name="address2" 
-                                    type="text" 
-                                    placeholder = "House/Apt Number"
-                                    value = {this.state.address2}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-
-                            <label>
-                                City: 
-                                <input 
-                                    name="city" 
-                                    type="text" 
-                                    placeholder = "City"
-                                    value = {this.state.city}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-                            
-                            <label>
-                                State: 
-                                <select name="resState" onChange={this.handleChange}>
-                                    <option value="CA">CA</option>
-                                    <option value="CA">MA</option>                                
-                                    <option value="CA">NY</option>
-                                </select>
-                            </label>
-                            <br />
-
-                            <label>
-                                Zip: 
-                                <input 
-                                    name="zipcode" 
-                                    type="text" 
-                                    placeholder = "zipcode"
-                                    value = {this.state.zipcode}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-
-                            <label>
-                                Phone: 
-                                <input 
-                                    name="phone" 
-                                    type="text" 
-                                    placeholder = "phone no."
-                                    value = {this.state.phone}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-
-                            <label>
-                                Email: 
-                                <input 
-                                    name="email" 
-                                    type="text" 
-                                    placeholder = "example@example.com"
-                                    value = {this.state.email}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-
-                            <label>
-                                Password: 
-                                <input 
-                                    name="password" 
-                                    type="text" 
-                                    placeholder = "password"
-                                    value = {this.state.password}
-                                    onChange={this.handleChange} />
-                            </label>
-                            <br />
-                            <button>Sign Up</button>
-                        </form>
+        return(
+            <div>
+                {(this.state.isLoading) ? 
+                <div>Loading..</div> :      
+                <div id="container app-bg">
+                    <div id="showerror" class={"row", "ml-3"}>
+                        <div class="col">
+                            {/* <textarea name="errorMessage" value={this.state.value} onChange={this.handleChange} /> */}
+                        </div>
                     </div>
-                    }
+
+                    <div class="row">
+                        <section class="col-xs-3 col-sm-3 col-md-2 col-lg-2 left">
+                        <h4> </h4>
+                        </section>
+
+                        {/* <section class="row input-fx justify-content-center align-items-center my-4"> */}
+                        <section class="col-xs-12 col-sm-12 col-md-6 col-lg-6 right">
+                            <div>
+                                <form onSubmit={this.handleSubmit}>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                            <th>
+                                                <h5>Signup to start booking rides</h5><br />
+                                            </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr class="input-td">
+                                            <td>First Name: </td>
+                                            <td>
+                                                <input 
+                                                    name="parentFname" 
+                                                    type="text" 
+                                                    class="custom-input"
+                                                    placeholder = "First name"
+                                                    value={this.state.parentFname}
+                                                    onChange={this.handleChange} />
+                                            </td>
+                                        </tr>
+
+                                        <tr class="input-td">
+                                            <td>Last Name: </td>
+                                            <td> 
+                                                <input 
+                                                    name="parentLname" 
+                                                    type="text" 
+                                                    class="custom-input"
+                                                    placeholder = "Last name"
+                                                    value={this.state.parentLname}
+                                                    onChange={this.handleChange} />                            
+                                            </td>
+                                        </tr>
+
+                                        <tr class="input-td">
+                                            <td>Address-1: </td>
+                                            <td>
+                                                <input 
+                                                    name="address1" 
+                                                    type="text" 
+                                                    class="custom-input"
+                                                    placeholder = "Street address"
+                                                    value = {this.state.address1}
+                                                    onChange={this.handleChange} />                          
+                                            </td>
+                                        </tr>
+
+                                        <tr class="input-td">
+                                            <td>Address-2: </td>
+                                            <td>
+                                                <input 
+                                                    name="address2" 
+                                                    type="text" 
+                                                    class="custom-input"
+                                                    placeholder = "House/Apt number"
+                                                    value = {this.state.address2}
+                                                    onChange={this.handleChange} />                            
+                                            </td>
+                                        </tr>
+
+                                        <tr class="input-td">
+                                            <td>City: </td>
+                                            <td>                                
+                                                <input 
+                                                    name="city" 
+                                                    type="text" 
+                                                    class="custom-input"
+                                                    placeholder = "City"
+                                                    value = {this.state.city}
+                                                    onChange={this.handleChange} />                            
+                                            </td>
+                                        </tr>
+
+                                        <tr class="input-td">
+                                            <td>State: </td>
+                                            <td> 
+                                                <select class="custom-select-dd" name="resState" onChange={this.handleChange}>
+                                                    <option value="-1">Select state</option>
+                                                    <option value="CA">CA</option>
+                                                    <option value="CA">MA</option>                                
+                                                    <option value="CA">NY</option>
+                                                </select>                       
+                                            </td>
+                                        </tr>
+
+                                        <tr class="input-td">
+                                            <td>Zip: </td>
+                                            <td>
+                                                <input 
+                                                    name="zipcode" 
+                                                    type="text" 
+                                                    class="custom-input"
+                                                    placeholder = "Zipcode"
+                                                    value = {this.state.zipcode}
+                                                    onChange={this.handleChange} />                            
+                                            </td>
+                                        </tr>
+
+                                        <tr class="input-td">
+                                            <td>Phone: </td>
+                                            <td>
+                                            <input 
+                                                name="phone" 
+                                                type="text" 
+                                                class="custom-input"
+                                                placeholder = "Phone number"
+                                                value = {this.state.phone}
+                                                onChange={this.handleChange} />
+                                            </td>
+                                        </tr>
+
+                                        <tr class="input-td">
+                                            <td>Email: </td>
+                                            <td>
+                                            <input 
+                                                name="email" 
+                                                type="text" 
+                                                class="custom-input"
+                                                placeholder = "example@example.com"
+                                                value = {this.state.email}
+                                                onChange={this.handleChange} />
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr class="input-td">
+                                            <td>Password: </td>
+                                            <td>
+                                            <input 
+                                                name="password" 
+                                                type="text" 
+                                                class="custom-input"
+                                                placeholder = "Password"
+                                                value = {this.state.password}
+                                                onChange={this.handleChange} />
+                                            </td>
+                                        </tr>
+                                        <tr style={{textAlign: 'center'}}>
+                                            <br /><br />
+                                            <button class="btn custom-button-1">Sign Up</button>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </form>
+                            </div>
+                        </section>
+                    </div>
+                    
                 </div>
-            );
-        // }
-}
+                }
+            </div>
+        );
+    }
 
 }
